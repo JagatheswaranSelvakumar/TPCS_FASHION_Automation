@@ -52,5 +52,7 @@ pipeline {
 
         failure {
         }        echo '❌ Tests Failed'
-        }    
+        }
+     }
+
 }
