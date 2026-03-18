@@ -37,7 +37,20 @@ pipeline {
                 archiveArtifacts artifacts: 'test-output/**', allowEmptyArchive: true
             }
         }
-    }
+        post {
+        always {
+            publishHTML([
+                reportDir: 'test-output',
+                reportFiles: 'ExtentReport.html',
+                reportName: 'Extent Report'
+            ])
+        }
 
-    
+        success {
+            echo '✅ Tests Passed'
+        }
+
+        failure {
+        }        echo '❌ Tests Failed'
+        }    
 }
