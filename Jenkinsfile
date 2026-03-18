@@ -2,24 +2,20 @@ pipeline {
     agent any
 
     tools {
-        git 'Default'           // Must match the Name you set in Global Tool Configuration
-        maven 'Maven_3.8.1'     // Must match installed Maven version in Jenkins
-        jdk 'JDK'               // Must match installed JDK in Jenkins
+        git 'Default'              // Match the Git tool name in Jenkins Global Tool Configuration
+        maven 'Maven_3.8.1'       // Match your installed Maven tool
+        jdk 'JDK'                  // Match your installed JDK tool
     }
 
     parameters {
-        choice(
-            name: 'BROWSER', 
-            choices: ['chrome', 'firefox', 'edge'], 
-            description: 'Select Browser for tests'
-        )
+        choice(name: 'BROWSER', choices: ['chrome', 'firefox', 'edge'], description: 'Select Browser')
     }
 
     stages {
 
         stage('Checkout') {
             steps {
-                echo "Checking out code from Git"
+                echo '🔄 Checking out source code'
                 sh 'which git'
                 sh 'git --version'
                 git branch: 'main', url: 'https://github.com/JagatheswaranSelvakumar/TPCS_FASHION_Automation.git'
@@ -28,45 +24,46 @@ pipeline {
 
         stage('Build') {
             steps {
-                echo "Building the project with Maven"
+                echo '🏗 Building the project with Maven'
                 sh 'mvn clean install -DskipTests'
             }
         }
 
         stage('Run Tests') {
             steps {
-                echo "Running tests on browser: ${params.BROWSER}"
+                echo "🧪 Running TestNG tests on ${params.BROWSER}"
                 sh "mvn test -Dbrowser=${params.BROWSER}"
             }
         }
 
-        stage('Archive Reports') {
+        stage('Archive Artifacts') {
             steps {
-                echo "Archiving test-output artifacts"
+                echo '📦 Archiving test output'
                 archiveArtifacts artifacts: 'test-output/**', allowEmptyArchive: true
             }
         }
-
     }
 
     post {
         always {
-            echo "Publishing Extent HTML Report"
-            publishHTML([
-                reportDir: 'test-output',
-                reportFiles: 'ExtentReport.html',
-                reportName: 'Extent Report',
-                allowMissing: true,
-                alwaysLinkToLastBuild: true
-            ])
+            script {
+                echo '📊 Publishing Extent HTML report'
+                publishHTML(target: [
+                    reportDir: 'test-output',
+                    reportFiles: 'ExtentReport.html',
+                    reportName: 'Extent Report',
+                    allowMissing: true,
+                    keepAll: true
+                ])
+            }
         }
 
         success {
-            echo '✅ All tests passed successfully!'
+            echo '✅ Tests Passed'
         }
 
         failure {
-            echo '❌ Some tests failed. Check reports for details.'
+            echo '❌ Tests Failed'
         }
     }
 }
