@@ -2,16 +2,16 @@ pipeline {
     agent any
 
     tools {
-        git 'Default'         // Name of your Git installation in Jenkins Global Tool Config
-        maven 'Maven_3.8.1'  // Name of your Maven installation
-        jdk 'JDK'             // Name of your JDK installation
+        git 'Default'             // Must match the Git tool name in Jenkins Global Tool Configuration
+        maven 'Maven_3.8.1'      // Must match Maven installation name
+        jdk 'JDK'                 // Must match JDK installation name
     }
 
     parameters {
         choice(
             name: 'BROWSER',
             choices: ['chrome', 'firefox', 'edge'],
-            description: 'Select Browser for Test Execution'
+            description: 'Select Browser for tests'
         )
     }
 
@@ -19,9 +19,10 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                echo "Checking out code from Git"
-                git branch: 'main', 
-                    url: 'https://github.com/JagatheswaranSelvakumar/TPCS_FASHION_Automation.git'
+                echo "Checking Git version and path"
+                sh 'which git'
+                sh 'git --version'
+                git branch: 'main', url: 'https://github.com/JagatheswaranSelvakumar/TPCS_FASHION_Automation.git'
             }
         }
 
@@ -34,28 +35,29 @@ pipeline {
 
         stage('Run Tests') {
             steps {
-                echo "Running TestNG tests on ${params.BROWSER}"
+                echo "Executing tests on browser: ${params.BROWSER}"
                 sh "mvn test -Dbrowser=${params.BROWSER}"
             }
         }
 
-        stage('Archive Artifacts') {
+        stage('Archive Reports & Screenshots') {
             steps {
-                echo "Archiving test-output folder including ExtentReport assets"
+                echo "Archiving test-output artifacts"
                 archiveArtifacts artifacts: 'test-output/**', allowEmptyArchive: true
             }
         }
 
-    }
+    } // end stages
 
     post {
         always {
-            echo "Publishing Extent HTML report"
+            echo "Publishing Extent HTML Report"
             publishHTML([
-                reportDir: 'test-output',          // folder containing HTML + CSS/JS/images
-                reportFiles: 'ExtentReport.html',  // main HTML file
+                reportDir: 'test-output',
+                reportFiles: 'ExtentReport.html',
                 reportName: 'Extent Report',
                 allowMissing: false,
+                keepAll: true,
                 alwaysLinkToLastBuild: true
             ])
         }
