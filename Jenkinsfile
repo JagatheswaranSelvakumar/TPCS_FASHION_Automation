@@ -2,9 +2,6 @@ pipeline {
     agent any
     tools {
         git 'Default'  // Must match the Name you set in Global Tool Configuration
-    }
-
-    tools {
         maven 'Maven_3.8.1'
         jdk 'JDK'
     }
