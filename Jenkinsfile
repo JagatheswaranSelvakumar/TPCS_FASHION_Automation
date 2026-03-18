@@ -16,7 +16,7 @@ pipeline {
             steps {
                 sh 'which git'
                 sh 'git --version'
-                git 'https://github.com/JagatheswaranSelvakumar/TPCS_FASHION_Automation.git'
+                git branch: 'main', url: 'https://github.com/JagatheswaranSelvakumar/TPCS_FASHION_Automation.git'
             }
         }
 
