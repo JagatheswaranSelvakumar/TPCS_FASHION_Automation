@@ -37,6 +37,7 @@ pipeline {
                 archiveArtifacts artifacts: 'test-output/**', allowEmptyArchive: true
             }
         }
+        }
         post {
         always {
             publishHTML([
@@ -53,6 +54,6 @@ pipeline {
         failure {
         }        echo '❌ Tests Failed'
         }
-     }
+     
 
 }
