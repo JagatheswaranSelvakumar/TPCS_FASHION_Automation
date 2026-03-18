@@ -48,13 +48,7 @@ pipeline {
         always {
             script {
                 echo '📊 Publishing Extent HTML report'
-                publishHTML(target: [
-                    reportDir: 'test-output/',
-                    reportFiles: 'ExtentReport.html',
-                    reportName: 'Extent Report',
-                    allowMissing: true,
-                    keepAll: true
-                ])
+               publishHTML([allowMissing: true, alwaysLinkToLastBuild: true, icon: '', keepAll: true, reportDir: 'test-output/', reportFiles: 'ExtentReport.html', reportName: 'TPCS_FASHION_Automation_Report', reportTitles: '', useWrapperFileDirectly: true])
             }
         }
 
