@@ -49,7 +49,7 @@ pipeline {
             script {
                 echo '📊 Publishing Extent HTML report'
                 publishHTML(target: [
-                    reportDir: 'test-output',
+                    reportDir: 'test-output/',
                     reportFiles: 'ExtentReport.html',
                     reportName: 'Extent Report',
                     allowMissing: true,
