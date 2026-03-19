@@ -62,4 +62,36 @@ pipeline {
             }
         }
     }
+
+    post {
+            success {
+                echo '✅ Tests Passed'
+                emailext(
+                    subject: "SUCCESS: Jenkins Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+                    body: """
+    Good news! The Jenkins job '${env.JOB_NAME}' build #${env.BUILD_NUMBER} succeeded.
+
+    Console output: ${env.BUILD_URL}console
+    Allure Report: ${env.BUILD_URL}allure/
+    """,
+                    to: "your_email@example.com"
+                )
+            }
+            failure {
+                echo '❌ Tests Failed'
+                emailext(
+                    subject: "FAILURE: Jenkins Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+                    body: """
+    Oops! The Jenkins job '${env.JOB_NAME}' build #${env.BUILD_NUMBER} failed.
+
+    Console output: ${env.BUILD_URL}console
+    Allure Report (if generated): ${env.BUILD_URL}allure/
+    """,
+                    to: "your_email@example.com"
+                )
+            }
+            always {
+                echo '🔔 Build finished'
+            }
+        }
 }
