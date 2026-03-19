@@ -78,7 +78,7 @@ pipeline {
                     emailext(
                         subject: "Automation Report - ${currentBuild.currentResult}",
                         mimeType: 'text/html',
-                        to: "team@example.com",
+                        to: "jagatheskmp@gmail.com",
                         from: "${GMAIL_USER}",
                         body: """
                             <h3>Jenkins Build #${env.BUILD_NUMBER}</h3>
