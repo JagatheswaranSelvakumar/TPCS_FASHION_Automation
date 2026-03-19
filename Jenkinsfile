@@ -65,27 +65,31 @@ pipeline {
     }
 
     post {
-            always {
-                echo "Sending email notification..."
-                emailext(
-                    subject: "Jenkins Build ${currentBuild.fullDisplayName} - ${currentBuild.currentResult}",
-                    body: """
-                    <p>Build URL: <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
-                    <p>Status: ${currentBuild.currentResult}</p>
-                    """,
-                    recipientProviders: [[$class: 'DevelopersRecipientProvider']],
-                    to: 'recipient@example.com',  // Replace with actual recipient
-                    replyTo: "${GMAIL_CREDENTIALS_USR}",
-                    from: "${GMAIL_CREDENTIALS_USR}"
-                )
-            }
+        always {
+            // Inject credentials safely
+            withCredentials([usernamePassword(
+                credentialsId: 'GMAIL_CREDENTIALS',
+                usernameVariable: 'GMAIL_USER',
+                passwordVariable: 'GMAIL_PASS'
+            )]) {
+                script {
+                    def reportUrl = "${env.BUILD_URL}artifact/reports/ExtentReport.html"
 
-            success {
-                echo "✅ Build and tests succeeded!"
-            }
-
-            failure {
-                echo "❌ Build or tests failed!"
+                    emailext(
+                        subject: "Automation Report - ${currentBuild.currentResult}",
+                        mimeType: 'text/html',
+                        to: "team@example.com",
+                        from: "${GMAIL_USER}",
+                        body: """
+                            <h3>Jenkins Build #${env.BUILD_NUMBER}</h3>
+                            <p>Status: ${currentBuild.currentResult}</p>
+                            <p><a href='${reportUrl}'>View Extent Report</a></p>
+                        """,
+                        replyTo: "${GMAIL_USER}",
+                        attachLog: true
+                    )
+                }
             }
         }
+    }
 }
