@@ -2,13 +2,17 @@ pipeline {
     agent any
 
     tools {
-       git 'Default'             // Must match the Git tool name in Jenkins Global Tool Configuration
-       maven 'Maven_3.8.1'      // Must match Maven installation name
-       jdk 'JDK'
+        git 'Default'                // Name of Git installation in Jenkins
+        maven 'Maven_3.8.1'         // Name of Maven installation in Jenkins
+        jdk 'JDK'                    // Name of JDK installation in Jenkins
     }
 
     parameters {
-        choice(name: 'BROWSER', choices: ['chrome', 'firefox', 'edge'], description: 'Select Browser')
+        choice(
+            name: 'BROWSER',
+            choices: ['chrome', 'firefox', 'edge'],
+            description: 'Select Browser for the tests'
+        )
     }
 
     environment {
@@ -20,48 +24,57 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                git branch: 'main',
-                    url: 'https://github.com/JagatheswaranSelvakumar/TPCS_FASHION_Automation.git'
+                echo "Checking out repository..."
+                git branch: 'main', url: 'https://github.com/JagatheswaranSelvakumar/TPCS_FASHION_Automation.git'
             }
         }
 
         stage('Clean & Build') {
             steps {
+                echo "Building project with Maven..."
                 sh 'mvn clean install -DskipTests'
             }
         }
 
         stage('Run Tests') {
             steps {
+                echo "Running tests on ${params.BROWSER}..."
                 sh "mvn test -Dbrowser=${params.BROWSER}"
             }
         }
 
-        stage('Generate Allure Report') {
+        stage('Archive Test Artifacts') {
             steps {
-                sh "mvn allure:report"
+                echo "Archiving test reports and screenshots..."
+                archiveArtifacts artifacts: 'test-output/**', allowEmptyArchive: true
             }
         }
 
-        stage('Archive Artifacts') {
+        stage('Publish Allure Report') {
             steps {
-                archiveArtifacts artifacts: 'test-output/**', allowEmptyArchive: true
+                echo "Generating Allure report..."
+                allure(
+                    commandline: 'Allure',               // Must match the Allure CLI name in Jenkins
+                    results: [[path: "${env.ALLURE_RESULTS}"]],
+                    includeProperties: false,
+                    reportBuildPolicy: 'ALWAYS'
+                )
             }
         }
     }
 
     post {
         always {
-            // Publish Allure Report in Jenkins
-            allure results: [[path: "${env.ALLURE_RESULTS}"]], reportBuildPolicy: 'ALWAYS'
+            echo "Cleaning workspace..."
+            cleanWs()
         }
 
         success {
-            echo '✅ Tests Passed!'
+            echo "✅ Tests passed successfully!"
         }
 
         failure {
-            echo '❌ Tests Failed!'
+            echo "❌ Tests failed!"
         }
     }
 }
