@@ -2,7 +2,7 @@ package base;
 
 import com.in.saragroup.tpcsambur.utilities.ConfigReader;
 import com.in.saragroup.tpcsambur.utilities.DriverFactory;
-import io.qameta.allure.Attachment;
+import io.qameta.allure.Allure;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.OutputType;
@@ -11,6 +11,8 @@ import org.openqa.selenium.WebDriver;
 import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
+
+import java.io.ByteArrayInputStream;
 
 public class BaseTest {
     private static final Logger log = LogManager.getLogger(BaseTest.class);
@@ -45,7 +47,7 @@ public class BaseTest {
             log.info("Test failed: " + result.getName() + ". Attempting to capture screenshot.");
             String testName = result.getName();
             log.info("Test failed: " + testName + ". Capturing screenshot.");
-            saveScreenshotPNG(driver, testName);
+            captureAndAttachScreenshot(driver, testName);
             log.info("Screenshot captured successfully for test: " + testName);
         }
 
@@ -56,20 +58,26 @@ public class BaseTest {
         }
     }
 
-
     /**
-     * Attach screenshot to Allure report
+     * Capture and attach screenshot to Allure report using Allure API
      */
-    @Attachment(value = "{testName} - Screenshot", type = "image/png")
-    public byte[] saveScreenshotPNG(WebDriver driver, String testName) {
+    public void captureAndAttachScreenshot(WebDriver driver, String testName) {
         log.info("Capturing screenshot for test: " + testName);
         try {
             log.info("Attempting to capture screenshot for test: " + testName);
-            return ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES);
+            byte[] screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES);
+
+            // Attach screenshot using Allure API
+            Allure.addAttachment(
+                testName + " - Screenshot",
+                "image/png",
+                new ByteArrayInputStream(screenshot),
+                ".png"
+            );
+            log.info("Screenshot successfully attached to Allure report for test: " + testName);
         } catch (Exception e) {
-            log.info("Failed to capture screenshot for test: " + testName + ". Error: " + e.getMessage());
+            log.error("Failed to capture screenshot for test: " + testName + ". Error: " + e.getMessage(), e);
             System.err.println("Failed to capture screenshot for " + testName + ": " + e.getMessage());
-            return new byte[0];
         }
 
     }

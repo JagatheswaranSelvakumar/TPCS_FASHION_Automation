@@ -7,16 +7,13 @@ import com.in.saragroup.tpcsambur.pages.LoginPage;
 import com.in.saragroup.tpcsambur.utilities.ConfigReader;
 import com.in.saragroup.tpcsambur.utilities.RandomUtils;
 import io.qameta.allure.*;
-import io.qameta.allure.testng.AllureTestNg;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 import static com.in.saragroup.tpcsambur.utilities.ScreenshotUtils.captureScreenshot;
 
-@Listeners({AllureTestNg.class})
 public class ColorTest extends BaseTest {
     private static final Logger log = LogManager.getLogger(ColorTest.class);
     private LoginPage loginPage;
