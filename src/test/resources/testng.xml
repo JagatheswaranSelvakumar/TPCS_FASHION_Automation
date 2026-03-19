@@ -1,12 +1,12 @@
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
 <suite name="TPC Sambur Suite" parallel="false">
-    <listeners>
-        <listener class-name="io.qameta.allure.testng.AllureTestNg"/>
-    </listeners>
     <test name="Login and Color Tests">
         <classes>
             <class name="com.in.saragroup.tpcsambur.tests.color.ColorTest"/>
         </classes>
 
     </test>
+    <listeners>
+        <listener class-name="io.qameta.allure.testng.AllureTestNg"/>
+    </listeners>
 </suite>
