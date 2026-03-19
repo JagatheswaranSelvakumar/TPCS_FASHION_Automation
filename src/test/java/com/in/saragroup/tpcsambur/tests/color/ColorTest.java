@@ -38,25 +38,6 @@ public class ColorTest extends BaseTest {
         log.info("Page objects initialized successfully");
     }
 
-    @AfterMethod
-    public void tearDown(ITestResult result) {
-        if (result.getStatus() == ITestResult.FAILURE) {
-            String screenshotPath = captureScreenshot(driver, result.getName());
-            test.fail("Test Failed: " + result.getThrowable());
-            try {
-                test.addScreenCaptureFromPath(screenshotPath);
-            } catch (Exception e) {
-                log.error("Failed to attach screenshot to report: " + e.getMessage());
-            }
-        } else if (result.getStatus() == ITestResult.SUCCESS) {
-            test.pass("Test Passed");
-        }
-        log.info("Tearing down the test environment");
-        if (driver != null) {
-            driver.quit();
-            log.info("Browser closed successfully");
-        }
-    }
 
     @Test(description = "Add a new color in the application")
     @Epic("Color Management")

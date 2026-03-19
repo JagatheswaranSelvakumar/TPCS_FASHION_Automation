@@ -78,6 +78,7 @@ public class BaseTest {
             System.err.println("Failed to capture screenshot for " + testName + ": " + e.getMessage());
             return new byte[0];
         }
+
     }
 
     @BeforeSuite
