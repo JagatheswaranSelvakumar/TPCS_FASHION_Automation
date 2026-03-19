@@ -62,16 +62,4 @@ pipeline {
             }
         }
     }
-
-    post {
-
-
-        success {
-            echo "✅ Tests passed successfully!"
-        }
-
-        failure {
-            echo "❌ Tests failed!"
-        }
-    }
 }
