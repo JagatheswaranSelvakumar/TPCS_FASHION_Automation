@@ -5,24 +5,18 @@ import com.in.saragroup.tpcsambur.pages.ColorPage;
 import com.in.saragroup.tpcsambur.pages.DashboardPage;
 import com.in.saragroup.tpcsambur.pages.LoginPage;
 import com.in.saragroup.tpcsambur.utilities.ConfigReader;
-import com.in.saragroup.tpcsambur.utilities.DriverFactory;
 import com.in.saragroup.tpcsambur.utilities.RandomUtils;
-import com.in.saragroup.tpcsambur.utilities.ScreenshotUtils;
 import io.qameta.allure.*;
+import io.qameta.allure.testng.AllureTestNg;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.testng.Assert;
-import org.testng.ITestResult;
-import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
-
-import static com.in.saragroup.tpcsambur.utilities.DriverFactory.driver;
 import static com.in.saragroup.tpcsambur.utilities.ScreenshotUtils.captureScreenshot;
 
-import org.openqa.selenium.OutputType;
-import org.openqa.selenium.TakesScreenshot;
-import java.io.ByteArrayInputStream;
+@Listeners({AllureTestNg.class})
 public class ColorTest extends BaseTest {
     private static final Logger log = LogManager.getLogger(ColorTest.class);
     private LoginPage loginPage;
@@ -44,22 +38,17 @@ public class ColorTest extends BaseTest {
     @Feature("Add Color")
     @Severity(SeverityLevel.CRITICAL)
     public void addNewColorTest() {
-        startTest("addNewColorTest", "Verify that a new color can be added successfully");
         log.info("Starting test: addNewColorTest - Verify that a new color can be added successfully");
         try {
             log.info("logging in to the application");
-            test.info("Logging in to the application");
             String username = ConfigReader.prop.getProperty("username");
             String password = ConfigReader.prop.getProperty("password");
             loginPage.login(username, password);
 
             Assert.assertEquals(driver.getTitle(), "Fashion");
-            test.pass("Login successful");
             log.info("Login successful, navigating to dashboard");
-            test.info("Navigating to Color page");
             dashboardPage.clickAdmin().clickColor();
             log.info("Navigated to Color page, adding a new color");
-            test.info("Adding a new color");
             colorPage.clickAddNewColor().clickStatusField().clickInactiveOption();
 
             String colorName = RandomUtils.generateRandomColor();
@@ -74,9 +63,7 @@ public class ColorTest extends BaseTest {
                 throw new AssertionError("Expected toast message: '" + expectedToast + "', but got: '" + actualToast + "'");
             } else {
                 log.info("Toast message verified successfully: " + actualToast);
-                test.pass("Toast message verified successfully: " + actualToast);
             }
-            test.pass("Color added successfully");
             log.info("Color added successfully, verifying color in the list");
 
             colorPage.clickViewButton();
@@ -87,14 +74,12 @@ public class ColorTest extends BaseTest {
                 throw new AssertionError("Expected color name: " + colorName + ", but found: " + actualColorName);
             } else {
                 log.info("Color verified successfully: " + actualColorName);
-                test.pass("Color verified successfully: " + actualColorName);
             }
-            test.pass("Color verified in list successfully");
             log.info("Color verified in list successfully");
         } catch (Exception e) {
-            test.fail("Test failed due to exception: " + e.getMessage());
             log.error("Test failed due to exception: ", e);
             captureScreenshot(driver,"addNewColorTest");
         }
     }
+
 }
