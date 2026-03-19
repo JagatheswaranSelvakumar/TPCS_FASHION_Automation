@@ -16,6 +16,7 @@ pipeline {
     }
 
     environment {
+        GMAIL_CREDENTIALS = credentials('gmail-jenkins-app-password')
         ALLURE_RESULTS = "target/allure-results"
         ALLURE_REPORT  = "target/site/allure-maven"
     }
@@ -64,34 +65,27 @@ pipeline {
     }
 
     post {
-            success {
-                echo '✅ Tests Passed'
-                emailext(
-                    subject: "SUCCESS: Jenkins Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
-                    body: """
-    Good news! The Jenkins job '${env.JOB_NAME}' build #${env.BUILD_NUMBER} succeeded.
-
-    Console output: ${env.BUILD_URL}console
-    Allure Report: ${env.BUILD_URL}allure/
-    """,
-                    to: "jagatheskmp@gmail.com"
-                )
-            }
-            failure {
-                echo '❌ Tests Failed'
-                emailext(
-                    subject: "FAILURE: Jenkins Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
-                    body: """
-    Oops! The Jenkins job '${env.JOB_NAME}' build #${env.BUILD_NUMBER} failed.
-
-    Console output: ${env.BUILD_URL}console
-    Allure Report (if generated): ${env.BUILD_URL}allure/
-    """,
-                    to: "jagatheskmp@gmail.com"
-                )
-            }
             always {
-                echo '🔔 Build finished'
+                echo "Sending email notification..."
+                emailext(
+                    subject: "Jenkins Build ${currentBuild.fullDisplayName} - ${currentBuild.currentResult}",
+                    body: """
+                    <p>Build URL: <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
+                    <p>Status: ${currentBuild.currentResult}</p>
+                    """,
+                    recipientProviders: [[$class: 'DevelopersRecipientProvider']],
+                    to: 'recipient@example.com',  // Replace with actual recipient
+                    replyTo: "${GMAIL_CREDENTIALS_USR}",
+                    from: "${GMAIL_CREDENTIALS_USR}"
+                )
+            }
+
+            success {
+                echo "✅ Build and tests succeeded!"
+            }
+
+            failure {
+                echo "❌ Build or tests failed!"
             }
         }
 }
