@@ -8,6 +8,7 @@ import com.in.saragroup.tpcsambur.utilities.ConfigReader;
 import com.in.saragroup.tpcsambur.utilities.DriverFactory;
 import com.in.saragroup.tpcsambur.utilities.RandomUtils;
 import com.in.saragroup.tpcsambur.utilities.ScreenshotUtils;
+import io.qameta.allure.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.testng.Assert;
@@ -19,6 +20,9 @@ import org.testng.annotations.Test;
 import static com.in.saragroup.tpcsambur.utilities.DriverFactory.driver;
 import static com.in.saragroup.tpcsambur.utilities.ScreenshotUtils.captureScreenshot;
 
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
+import java.io.ByteArrayInputStream;
 public class ColorTest extends BaseTest {
     private static final Logger log = LogManager.getLogger(ColorTest.class);
     private LoginPage loginPage;
@@ -27,11 +31,7 @@ public class ColorTest extends BaseTest {
 
     @BeforeMethod
     public void setup() throws Exception {
-        log.info("Setting up the test environment");
-        ConfigReader.loadConfig();
-        log.info("Configuration loaded successfully");
-        DriverFactory.launchBrowser();
-        log.info("Browser launched successfully");
+        log.info("ColorTest BeforeMethod method started");
         loginPage = new LoginPage();
         dashboardPage = new DashboardPage();
         colorPage = new ColorPage();
@@ -59,6 +59,9 @@ public class ColorTest extends BaseTest {
     }
 
     @Test(description = "Add a new color in the application")
+    @Epic("Color Management")
+    @Feature("Add Color")
+    @Severity(SeverityLevel.CRITICAL)
     public void addNewColorTest() {
         startTest("addNewColorTest", "Verify that a new color can be added successfully");
         log.info("Starting test: addNewColorTest - Verify that a new color can be added successfully");

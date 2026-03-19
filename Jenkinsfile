@@ -2,78 +2,65 @@ pipeline {
     agent any
 
     tools {
-        git 'Default'             // Must match the Git tool name in Jenkins Global Tool Configuration
-        maven 'Maven_3.8.1'      // Must match Maven installation name
-        jdk 'JDK'                 // Must match JDK installation name
+        jdk 'JDK_21'          // Make sure this matches your Global Tool Config
+        maven 'Maven_3.8.1'   // Make sure this matches your Maven tool name
+    }
+
+    parameters {
+        choice(name: 'BROWSER', choices: ['chrome', 'firefox', 'edge'], description: 'Select Browser')
     }
 
     environment {
-        REPORT_PATH = "test-output/ExtentReport.html" // Where Extent generates report
-    }
-
-
-    parameters {
-        choice(
-            name: 'BROWSER',
-            choices: ['chrome', 'firefox', 'edge'],
-            description: 'Select Browser for tests'
-        )
+        ALLURE_RESULTS = "target/allure-results"
+        ALLURE_REPORT  = "target/site/allure-maven"
     }
 
     stages {
 
         stage('Checkout') {
             steps {
-                echo "Checking Git version and path"
-                sh 'which git'
-                sh 'git --version'
-                git branch: 'main', url: 'https://github.com/JagatheswaranSelvakumar/TPCS_FASHION_Automation.git'
+                git branch: 'main',
+                    url: 'https://github.com/JagatheswaranSelvakumar/TPCS_FASHION_Automation.git'
             }
         }
 
-        stage('Build') {
+        stage('Clean & Build') {
             steps {
-                echo "Building project using Maven"
                 sh 'mvn clean install -DskipTests'
             }
         }
 
         stage('Run Tests') {
             steps {
-                echo "Executing tests on browser: ${params.BROWSER}"
                 sh "mvn test -Dbrowser=${params.BROWSER}"
             }
         }
 
-        stage('Archive Reports & Screenshots') {
+        stage('Generate Allure Report') {
             steps {
-                echo "Archiving test-output artifacts"
-                archiveArtifacts artifacts: 'test-output/**', allowEmptyArchive: true
+                sh "mvn allure:report"
             }
         }
 
-    } // end stages
+        stage('Archive Artifacts') {
+            steps {
+                archiveArtifacts artifacts: 'test-output/**', allowEmptyArchive: true
+            }
+        }
+    }
 
     post {
         always {
-            echo "Publishing Extent HTML Report"
-            publishHTML([
-                reportDir: 'test-output',
-                reportFiles: 'ExtentReport.html',
-                reportName: 'Extent Report',
-                allowMissing: false,
-                keepAll: true,
-                alwaysLinkToLastBuild: true
-            ])
-           
+            // Publish Allure Report in Jenkins
+            allure results: [[path: "${env.ALLURE_RESULTS}"]], reportBuildPolicy: 'ALWAYS'
         }
 
         success {
-            echo '✅ Tests Passed'
+            echo '✅ Tests Passed!'
         }
 
         failure {
-            echo '❌ Tests Failed'
+            echo '❌ Tests Failed!'
         }
     }
 }
