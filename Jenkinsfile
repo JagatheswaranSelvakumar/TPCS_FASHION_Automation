@@ -16,7 +16,7 @@ pipeline {
     }
 
     environment {
-        GMAIL_CREDENTIALS = credentials('gmail-jenkins-app-password')
+
         ALLURE_RESULTS = "target/allure-results"
         ALLURE_REPORT  = "target/site/allure-maven"
     }
