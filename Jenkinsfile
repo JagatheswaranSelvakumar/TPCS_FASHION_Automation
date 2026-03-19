@@ -2,8 +2,9 @@ pipeline {
     agent any
 
     tools {
-        jdk 'JDK_21'          // Make sure this matches your Global Tool Config
-        maven 'Maven_3.8.1'   // Make sure this matches your Maven tool name
+       git 'Default'             // Must match the Git tool name in Jenkins Global Tool Configuration
+       maven 'Maven_3.8.1'      // Must match Maven installation name
+       jdk 'JDK'
     }
 
     parameters {
