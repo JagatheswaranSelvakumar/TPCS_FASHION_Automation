@@ -81,7 +81,7 @@ pipeline {
                 emailext(
                     subject: "${statusIcon} Automation Report - ${currentBuild.currentResult}",
                     mimeType: 'text/html',
-                    to: "team@example.com", // Replace with your recipients
+                    to: "jagatheskmp@gmail.com", // Replace with your recipients
 
                     body: """
                     <html>
