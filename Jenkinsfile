@@ -54,12 +54,15 @@ pipeline {
         stage('Publish Allure Report') {
             steps {
                 echo "Generating Allure report..."
-                allure(
-                    commandline: 'Allure',               // Must match the Allure CLI name in Jenkins
-                    results: [[path: "${env.ALLURE_RESULTS}"]],
-                    includeProperties: false,
-                    reportBuildPolicy: 'ALWAYS'
-                )
+                script {
+                    allure(
+                            commandline: 'Allure',               // Must match the Allure CLI name in Jenkins
+                            results: [[path: "${env.ALLURE_RESULTS}"]],
+                            includeProperties: false,
+                            jdk: '',
+                            reportBuildPolicy: 'ALWAYS'
+                    )
+                }
             }
         }
     }
@@ -68,27 +71,32 @@ pipeline {
         always {
             // Inject credentials safely
             withCredentials([usernamePassword(
-                credentialsId: 'GMAIL_CREDENTIALS',
-                usernameVariable: 'GMAIL_USER',
-                passwordVariable: 'GMAIL_PASS'
+                    credentialsId: 'GMAIL_CREDENTIALS',
+                    usernameVariable: 'GMAIL_USER',
+                    passwordVariable: 'GMAIL_PASS'
             )]) {
-                script {
-                    def reportUrl = "${env.BUILD_URL}artifact/reports/ExtentReport.html"
+                echo "Sending Email..."
 
-                    emailext(
-                        subject: "Automation Report - ${currentBuild.currentResult}",
-                        mimeType: 'text/html',
-                        to: "jagatheskmp@gmail.com",
-                        from: "${GMAIL_USER}",
+                emailext(
+                        subject: "Build ${currentBuild.currentResult}: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+
                         body: """
-                            <h3>Jenkins Build #${env.BUILD_NUMBER}</h3>
-                            <p>Status: ${currentBuild.currentResult}</p>
-                            <p><a href='${reportUrl}'>View Extent Report</a></p>
-                        """,
-                        replyTo: "${GMAIL_USER}",
-                        attachLog: true
-                    )
-                }
+                    <h2>Automation Test Report</h2>
+
+                    <p><b>Project:</b> ${env.JOB_NAME}</p>
+                    <p><b>Build Number:</b> ${env.BUILD_NUMBER}</p>
+                    <p><b>Status:</b> ${currentBuild.currentResult}</p>
+
+                    <p><b>Allure Report:</b> 
+                    <a href="${env.BUILD_URL}allure">Click Here</a></p>
+
+                    <p><b>Console Output:</b> 
+                    <a href="${env.BUILD_URL}console">View Logs</a></p>
+                    """,
+
+                        mimeType: 'text/html',
+                        to: 'jagatheskmp@gmail.com'
+                )
             }
         }
     }
