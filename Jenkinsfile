@@ -74,7 +74,7 @@ pipeline {
     Console output: ${env.BUILD_URL}console
     Allure Report: ${env.BUILD_URL}allure/
     """,
-                    to: "your_email@example.com"
+                    to: "jagatheskmp@gmail.com"
                 )
             }
             failure {
@@ -87,7 +87,7 @@ pipeline {
     Console output: ${env.BUILD_URL}console
     Allure Report (if generated): ${env.BUILD_URL}allure/
     """,
-                    to: "your_email@example.com"
+                    to: "jagatheskmp@gmail.com"
                 )
             }
             always {
