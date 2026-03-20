@@ -2,78 +2,91 @@ pipeline {
     agent any
 
     tools {
-        git 'Default'             // Must match the Git tool name in Jenkins Global Tool Configuration
-        maven 'Maven_3.8.1'      // Must match Maven installation name
-        jdk 'JDK'                 // Must match JDK installation name
+        git 'Default' // Name of Git installation in Jenkins
+        maven 'Maven_3.8.1' // Name of Maven installation in Jenkins
+        jdk 'JDK' // Name of JDK installation in Jenkins
+    }
+
+    parameters {
+        choice(name: 'BROWSER',
+                choices: ['chrome', 'firefox', 'edge'],
+                description: 'Select Browser for the tests')
     }
 
     environment {
-        REPORT_PATH = "test-output/ExtentReport.html" // Where Extent generates report
-    }
 
-
-    parameters {
-        choice(
-            name: 'BROWSER',
-            choices: ['chrome', 'firefox', 'edge'],
-            description: 'Select Browser for tests'
-        )
+        ALLURE_RESULTS = "target/allure-results"
+        ALLURE_REPORT = "target/site/allure-maven"
     }
 
     stages {
 
         stage('Checkout') {
             steps {
-                echo "Checking Git version and path"
-                sh 'which git'
-                sh 'git --version'
+                echo "Checking out repository..."
                 git branch: 'main', url: 'https://github.com/JagatheswaranSelvakumar/TPCS_FASHION_Automation.git'
             }
         }
 
-        stage('Build') {
+        stage('Clean & Build') {
             steps {
-                echo "Building project using Maven"
+                echo "Building project with Maven..."
                 sh 'mvn clean install -DskipTests'
             }
         }
 
         stage('Run Tests') {
             steps {
-                echo "Executing tests on browser: ${params.BROWSER}"
+                echo "Running tests on ${params.BROWSER}..."
                 sh "mvn test -Dbrowser=${params.BROWSER}"
             }
         }
 
-        stage('Archive Reports & Screenshots') {
+        stage('Archive Test Artifacts') {
             steps {
-                echo "Archiving test-output artifacts"
+                echo "Archiving test reports and screenshots..."
                 archiveArtifacts artifacts: 'test-output/**', allowEmptyArchive: true
             }
         }
 
-    } // end stages
+        stage('Publish Allure Report') {
+            steps {
+                echo "Generating Allure report..."
+                script {
+                    allure(commandline: 'Allure', // Must match the Allure CLI name in Jenkins
+                            results: [
+                                    [path: "${env.ALLURE_RESULTS}"]
+                            ],
+                            includeProperties: false,
+                            jdk: '',
+                            reportBuildPolicy: 'ALWAYS')
+                }
+            }
+        }
+    }
 
     post {
         always {
-            echo "Publishing Extent HTML Report"
-            publishHTML([
-                reportDir: 'test-output',
-                reportFiles: 'ExtentReport.html',
-                reportName: 'Extent Report',
-                allowMissing: false,
-                keepAll: true,
-                alwaysLinkToLastBuild: true
-            ])
-           
-        }
+            script {
+                def reportUrl = "${env.BUILD_URL}allure"
 
-        success {
-            echo '✅ Tests Passed'
-        }
+                mail(to: 'jagatheskmp@gmail.com',
+                        subject: "Build ${currentBuild.currentResult}: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                        body: """
+                        Automation Test Execution Report
 
-        failure {
-            echo '❌ Tests Failed'
+                        Project: ${env.JOB_NAME}
+                        Build Number: ${env.BUILD_NUMBER}
+                        Status: ${currentBuild.currentResult}
+
+                        Allure Report:
+                        ${reportUrl}
+
+                        Console Log:
+                        ${env.BUILD_URL}console
+
+                        """)
+            }
         }
     }
 }

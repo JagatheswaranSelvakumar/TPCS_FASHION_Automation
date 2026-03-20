@@ -4,5 +4,9 @@
         <classes>
             <class name="com.in.saragroup.tpcsambur.tests.color.ColorTest"/>
         </classes>
+
     </test>
+    <listeners>
+       <listener class-name="com.in.saragroup.tpcsambur.listeners.TestListener"></listener>
+    </listeners>
 </suite>
