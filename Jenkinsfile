@@ -2,9 +2,9 @@ pipeline {
     agent any
 
     tools {
-        git 'Default'                // Name of Git installation in Jenkins
-        maven 'Maven_3.8.1'         // Name of Maven installation in Jenkins
-        jdk 'JDK'                    // Name of JDK installation in Jenkins
+        git 'Default' // Name of Git installation in Jenkins
+        maven 'Maven_3.8.1' // Name of Maven installation in Jenkins
+        jdk 'JDK' // Name of JDK installation in Jenkins
     }
 
     parameters {
@@ -53,8 +53,10 @@ pipeline {
             steps {
                 echo "Generating Allure report..."
                 script {
-                    allure(commandline: 'Allure',               // Must match the Allure CLI name in Jenkins
-                            results: [[path: "${env.ALLURE_RESULTS}"]],
+                    allure(commandline: 'Allure', // Must match the Allure CLI name in Jenkins
+                            results: [
+                                    [path: "${env.ALLURE_RESULTS}"]
+                            ],
                             includeProperties: false,
                             jdk: '',
                             reportBuildPolicy: 'ALWAYS')
@@ -71,19 +73,19 @@ pipeline {
                 mail(to: 'jagatheskmp@gmail.com',
                         subject: "Build ${currentBuild.currentResult}: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                         body: """
-Automation Test Execution Report
+                        Automation Test Execution Report
 
-Project: ${env.JOB_NAME}
-Build Number: ${env.BUILD_NUMBER}
-Status: ${currentBuild.currentResult}
+                        Project: ${env.JOB_NAME}
+                        Build Number: ${env.BUILD_NUMBER}
+                        Status: ${currentBuild.currentResult}
 
-Allure Report:
-${reportUrl}
+                        Allure Report:
+                        ${reportUrl}
 
-Console Log:
-${env.BUILD_URL}console
+                        Console Log:
+                        ${env.BUILD_URL}console
 
-""")
+                        """)
             }
         }
     }
