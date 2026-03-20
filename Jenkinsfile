@@ -8,17 +8,15 @@ pipeline {
     }
 
     parameters {
-        choice(
-            name: 'BROWSER',
-            choices: ['chrome', 'firefox', 'edge'],
-            description: 'Select Browser for the tests'
-        )
+        choice(name: 'BROWSER',
+                choices: ['chrome', 'firefox', 'edge'],
+                description: 'Select Browser for the tests')
     }
 
     environment {
 
         ALLURE_RESULTS = "target/allure-results"
-        ALLURE_REPORT  = "target/site/allure-maven"
+        ALLURE_REPORT = "target/site/allure-maven"
     }
 
     stages {
@@ -55,13 +53,11 @@ pipeline {
             steps {
                 echo "Generating Allure report..."
                 script {
-                    allure(
-                            commandline: 'Allure',               // Must match the Allure CLI name in Jenkins
+                    allure(commandline: 'Allure',               // Must match the Allure CLI name in Jenkins
                             results: [[path: "${env.ALLURE_RESULTS}"]],
                             includeProperties: false,
                             jdk: '',
-                            reportBuildPolicy: 'ALWAYS'
-                    )
+                            reportBuildPolicy: 'ALWAYS')
                 }
             }
         }
@@ -69,11 +65,26 @@ pipeline {
 
     post {
         always {
-            mail(
-                    to: 'jagatheskmp@gmail.com',
-                    subject: "Test Email",
-                    body: "This is a test email from Jenkins"
-            )
+            script {
+                def reportUrl = "${env.BUILD_URL}allure"
+
+                mail(to: 'jagatheskmp@gmail.com',
+                        subject: "Build ${currentBuild.currentResult}: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                        body: """
+Automation Test Execution Report
+
+Project: ${env.JOB_NAME}
+Build Number: ${env.BUILD_NUMBER}
+Status: ${currentBuild.currentResult}
+
+Allure Report:
+${reportUrl}
+
+Console Log:
+${env.BUILD_URL}console
+
+""")
+            }
         }
     }
 }
