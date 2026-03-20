@@ -69,35 +69,11 @@ pipeline {
 
     post {
         always {
-            // Inject credentials safely
-            withCredentials([usernamePassword(
-                    credentialsId: 'GMAIL_CREDENTIALS',
-                    usernameVariable: 'GMAIL_USER',
-                    passwordVariable: 'GMAIL_PASS'
-            )]) {
-                echo "Sending Email..."
-
-                emailext(
-                        subject: "Build ${currentBuild.currentResult}: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-
-                        body: """
-                    <h2>Automation Test Report</h2>
-
-                    <p><b>Project:</b> ${env.JOB_NAME}</p>
-                    <p><b>Build Number:</b> ${env.BUILD_NUMBER}</p>
-                    <p><b>Status:</b> ${currentBuild.currentResult}</p>
-
-                    <p><b>Allure Report:</b> 
-                    <a href="${env.BUILD_URL}allure">Click Here</a></p>
-
-                    <p><b>Console Output:</b> 
-                    <a href="${env.BUILD_URL}console">View Logs</a></p>
-                    """,
-
-                        mimeType: 'text/html',
-                        to: 'jagatheskmp@gmail.com'
-                )
-            }
+            mail(
+                    to: 'jagatheskmp@gmail.com',
+                    subject: "Test Email",
+                    body: "This is a test email from Jenkins"
+            )
         }
     }
 }
