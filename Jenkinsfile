@@ -70,7 +70,7 @@ pipeline {
             script {
                 def reportUrl = "${env.BUILD_URL}allure"
 
-                mail(to: 'jagatheskmp@gmail.com',
+                mail(to: 'jagatheskmp@gmail.com,jagathedpm@gmail.com',
                         subject: "Build ${currentBuild.currentResult}: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                         body: """
                         Automation Test Execution Report
